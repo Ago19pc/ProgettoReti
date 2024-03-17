@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Sun Mar 17 19:13:10 2024
+# Process ID: 2748
+# Current directory: E:/Vivado/new_project_reti/new_project_reti.runs/impl_1
+# Command line: vivado.exe -log project_reti_logiche.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source project_reti_logiche.tcl -notrace
+# Log file: E:/Vivado/new_project_reti/new_project_reti.runs/impl_1/project_reti_logiche.vdi
+# Journal file: E:/Vivado/new_project_reti/new_project_reti.runs/impl_1\vivado.jou
+# Running On: DESKTOP-QAGDBSL, OS: Windows, CPU Frequency: 1498 MHz, CPU Physical cores: 4, Host memory: 8155 MB
+#-----------------------------------------------------------
+source project_reti_logiche.tcl -notrace

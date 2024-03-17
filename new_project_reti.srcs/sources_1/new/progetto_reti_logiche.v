@@ -22,14 +22,16 @@ end project_reti_logiche;
 
 architecture project_reti_logiche_arch of project_reti_logiche is
 
-	TYPE STATE IS (RESET, INIT, START, WFIRSTNUM, WSECONDNUM, MEMADVANCE, ENDCYCLE, SHOULDIREPEAT, MEMADVANCE2, FINISH);
+	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH);
 	SIGNAL S : STATE;
 	SIGNAL I : std_logic_vector(9 downto 0);
 	SIGNAL K : std_logic_vector(9 downto 0);
 	
-	--SIGNAL stored_value : std_logic_vector(15 downto 0);
 	SIGNAL cnt : std_logic_vector(7 downto 0);
 	SIGNAL lastNum : std_logic_vector(7 downto 0);
+	
+	SIGNAL stored_value : std_logic_vector(15 downto 0);
+	SIGNAL sentinel: std_logic;
 
 
 	
@@ -37,7 +39,7 @@ architecture project_reti_logiche_arch of project_reti_logiche is
 
 begin
     
-    --o_mem_addr <= stored_value;
+    
     
 	calculate_next_state : process (i_clk, i_rst)
 	begin
@@ -48,30 +50,31 @@ begin
 				when RESET =>
 					if (i_start = '1') then
 						S <= INIT;
-					else S <= RESET;
 					end if;
-				when INIT => S <= START;
-				when START => 
-					if i_mem_data = "00000000" then
-						S <= WFIRSTNUM;
-					else S <= MEMADVANCE;
-					end if;					
-				when WFIRSTNUM => S <= MEMADVANCE;
-				when MEMADVANCE => S <= WSECONDNUM;
-				when WSECONDNUM => S <= ENDCYCLE;
-				when ENDCYCLE => S <= SHOULDIREPEAT;
-				when SHOULDIREPEAT => 
-					if (I = std_logic_vector(to_unsigned(2 * to_integer(unsigned(k)) - 1, K'length))) then
+				when INIT => S <= PREFREAD;
+				when PREFREAD => S <= FREAD;				
+				when FREAD => 
+				if i_mem_data /= "00000000" then
+					S <= PRESWRITE;
+				else 
+					S <= PREFWRITE;
+				end if;
+				when PREFWRITE => S <= FWRITE;
+				when FWRITE => S <= PRESWRITE;
+				when PRESWRITE => S <= SWRITE;
+				when SWRITE => 
+					if (I = K) then
 						S <= FINISH;
-					else S <= MEMADVANCE2;
+					else 
+						S <= PREFREAD;
 					end if;
-				when MEMADVANCE2 => S <= START;
 				when others => null;
-				end case;
+			end case;
+		else null;
 		end if;
 	end process calculate_next_state;
 	
-	get_output : process (S)
+	get_output : process (i_clk , i_rst)
 	begin
 		case S is
 			when RESET => 
@@ -79,122 +82,121 @@ begin
 				o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
-				o_mem_addr <= (others => '0');
 			when INIT =>
-				o_mem_en <= '1';
-				o_done <= '0';
-				o_mem_we <= '0';
+				o_mem_en <= '1'; -- ridondante
+				o_mem_we <= '0'; -- ridondante
 				K <= i_k;
-				o_mem_addr <= i_add;
-				--stored_value <= i_add;
-				--i <= (others => '0');
-			when START =>
+				sentinel <= '1';
+			when PREFREAD =>
 				o_mem_we <= '0';
 				o_mem_en <= '1';
-				o_done <= '0';	
-				--o_mem_addr <= stored_value;
-			when WFIRSTNUM =>
-				o_mem_we <= '1';
+			when FREAD => 
 				o_mem_en <= '1';
-				o_done <= '0';
-				o_mem_data <= lastNum;
-			when MEMADVANCE =>
-				o_mem_en <= '0';
-				o_done <= '0';
-				--o_mem_addr <= stored_value;
-			when ENDCYCLE => 
-				o_done <= '0';
-				o_mem_en <= '0';
-				--o_mem_addr <= stored_value;
-			when SHOULDIREPEAT =>
-				o_done <= '0';
+				sentinel <= '0';
+			when PRESWRITE => 
+				o_mem_en <= '1';
+				o_mem_we <= '1';
+				o_mem_data <= cnt;
+			when SWRITE => 
 				o_mem_en <= '0';
 			when FINISH =>
 				o_done <= '1';
-				o_mem_en <= '0';
-			when MEMADVANCE2 =>
-				o_mem_en <= '0';
-				o_mem_we <= '0';
-				o_done <= '0';
-				--o_mem_addr <= stored_value;
-				o_mem_addr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_add)) + to_integer(unsigned(I)), i_add'length));
-			when WSECONDNUM =>
+				o_mem_en <= '0'; -- ridondante
+			when PREFWRITE => 
 				o_mem_en <= '1';
 				o_mem_we <= '1';
-				o_done <= '0';
-				o_mem_data <= cnt;
+				o_mem_data <= lastNum;
+			when FWRITE =>
+				o_mem_en <= '0';			
 			when others => null;
 		end case;
 	end process get_output;
 	
+	-------------------------------------------------------------------------------------------
 	counter : process (i_clk, i_rst)
 	   begin
 		if (i_rst = '1') then
-			cnt <= (others => '0');
+			cnt <= (others => '0'); -- ridondante
 		elsif falling_edge(i_clk) then
 			case S is
-				when INIT => cnt <= "00000000";
-				when START => 
-					if(i_mem_data /= "00000000") then 
+				when INIT => cnt <= (others => '0');
+				when FREAD => 
+					if( i_mem_data /= "00000000") then 
 						cnt <= "00011111";
-						--I <= std_logic_vector(to_unsigned(to_integer(unsigned(I)) + 1, I'length));
 					else 
-						if(cnt/= "00000000") then 
-							cnt <= std_logic_vector(to_unsigned(to_integer(unsigned(cnt))-1,cnt'length));
+						if(cnt /= "00000000") then 
+							cnt <= std_logic_vector(to_unsigned(to_integer(unsigned(cnt)) - 1,cnt'length));
 						end if;
 					end if;	
 			   when others => null;
 			end case;
+		else null;
 		end if;
 	end process counter;
 	
-	
-	--shift_address: process(i_clk, i_rst)
-	  -- begin
-		--if falling_edge(i_clk) then
-			--case S is 
-				--when INIT => 
-				    --stored_value <= i_add;
-	
-				--when MEMADVANCE => 
-					--stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
-					--stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
+	-------------------------------------------------------------------------------------------
+	o_mem_addr <= stored_value;
+	shift_address: process(i_clk, i_rst)
+	   begin
+		if falling_edge(i_clk) then
+			case S is 
+				when INIT =>
+					stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(i_add)), i_add'length));
+				
+				when PREFREAD =>
+				    if sentinel = '0' then
+					   stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
+					else null;
+				    end if;
+				    
+				when FWRITE =>
+					stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
 					
-				--when MEMADVANCE2 => 
-					--stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
-					--o_mem_addr <= stored_value;
-			     --when others => null;
-			--end case;
-		--end if;
-	--end process shift_address;
+				when FREAD =>
+				    if (i_mem_data /= "00000000") then 
+				        stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
+				    else null;
+				    end if;
+				when others => null;
+			end case;
+		else null;
+		end if;
+	end process shift_address;
+	-------------------------------------------------------------------------------------------
 	
 	override : process(i_clk , i_rst)
 	   begin
 		if falling_edge(i_clk) then 
 			case S is 
-			 when START => 
-			     if i_mem_data /= "00000000" then 
-			         lastnum <= i_mem_data;
-			     end if;
+				when INIT =>
+					lastNum <= (others => '0');
+					
+				when FREAD => 
+					if i_mem_data /= "00000000" then 
+						lastnum <= i_mem_data;
+					end if;
 				when others => null;
 			end case;
+		else null;
 		end if;
 	end process override;
+-------------------------------------------------------------------------------------------
 	
 	I_Increment: process(i_clk , i_rst)
 	   begin
 		if falling_edge(i_clk) then
 			case S is
-			    when START =>
-			     if(i_mem_data /= "00000000") then
-						I <= std_logic_vector(to_unsigned(to_integer(unsigned(I)) + 1, I'length));
-				  end if;
-			    when INIT => I <= "0000000001";
-				when WFIRSTNUM => I <= std_logic_vector(to_unsigned(to_integer(unsigned(I)) + 1, I'length));
-				when ENDCYCLE => I <= std_logic_vector(to_unsigned(to_integer(unsigned(I)) + 1, I'length));
+				when INIT =>
+					I <= (others => '0');
+			
+			    when FREAD => 
+					I <= std_logic_vector(to_unsigned(to_integer(unsigned(I)) + 1, I'length));
+					
 			    when others => null;
 			end case;
+		else null;
 		end if;
-	end process I_Increment;	 
+	end process I_Increment;	
+-------------------------------------------------------------------------------------------	
 
 end architecture;
