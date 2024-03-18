@@ -25,7 +25,7 @@ architecture project_reti_logiche_arch of project_reti_logiche is
 	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH);
 	SIGNAL S : STATE;
 	SIGNAL I : std_logic_vector(9 downto 0) := (others => '0');
-	SIGNAL K : std_logic_vector(9 downto 0) := (others => '0');
+	
 	
 	SIGNAL cnt : std_logic_vector(7 downto 0) := (others => '0');
 	SIGNAL lastNum : std_logic_vector(7 downto 0) := (others => '0');
@@ -64,7 +64,7 @@ begin
 				when FWRITE => S <= PRESWRITE;
 				when PRESWRITE => S <= SWRITE;
 				when SWRITE => 
-					if (I = K) then
+					if (I = i_k) then
 						S <= FINISH;
 					else 
 						S <= PREFREAD;
@@ -87,32 +87,38 @@ begin
 			    o_done <= '0';
 				o_mem_en <= '1'; -- ridondante
 				o_mem_we <= '0'; -- ridondante
-				K <= i_k;
 				sentinel <= '1';
+				o_mem_data <= (others => '0');
 			when PREFREAD =>
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
-				--sentinel <= '1';
+				--sentinel <= '1'; -- questa non può ne essere 1 ne 0
+				o_mem_data <= (others => '0');
 			when FREAD => 
 			    o_done <= '0';
 				o_mem_en <= '1';
+				o_mem_we <= '0';
 				sentinel <= '0';
+				o_mem_data <= (others => '0');
 			when PRESWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '1';
-				--sentinel <= '0';
+				sentinel <= '0';
 				o_mem_data <= cnt;
 			when SWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '0';
+				o_mem_we <= '1';
 				--sentinel <= '0';
+				o_mem_data <= (others => '0');
 			when FINISH =>
 				o_done <= '1';
 				o_mem_en <= '0'; -- ridondante
 				o_mem_we <= '0';
 				--sentinel <= '0';
+				o_mem_data <= (others => '0');
 				if i_start = '0' then o_done <= '0'; end if;
 			when PREFWRITE => 
 			    o_done <= '0';
@@ -123,10 +129,15 @@ begin
 			when FWRITE =>
 			    o_done <= '0';
 				o_mem_en <= '0';
+				o_mem_we <= '1';
 				--sentinel <= '0';
+				o_mem_data <= (others => '0');
 			when others => 
 			    o_done <= '0';
 			    sentinel <= '0';
+			    o_mem_en <= '0';
+			    o_mem_we <= '0';
+			    o_mem_data <= (others => '0');
 		end case;
 	end process get_output;
 	
