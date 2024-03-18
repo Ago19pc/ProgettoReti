@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2023.2 (win64) Build 4029153 Fri Oct 13 20:14:34 MDT 2023
-| Date         : Sun Mar 17 19:11:32 2024
+| Date         : Mon Mar 18 20:07:22 2024
 | Host         : DESKTOP-QAGDBSL running 64-bit major release  (build 9200)
 | Command      : report_utilization -file project_reti_logiche_utilization_synth.rpt -pb project_reti_logiche_utilization_synth.pb
 | Design       : project_reti_logiche
@@ -153,10 +153,10 @@ Warning! LUT value is adjusted to account for LUT combining.
 +----------+------+---------------------+
 | IBUF     |   37 |                  IO |
 | FDRE     |   34 |        Flop & Latch |
-| LUT4     |   32 |                 LUT |
+| LUT4     |   31 |                 LUT |
 | OBUF     |   27 |                  IO |
 | LDCE     |   22 |        Flop & Latch |
-| LUT5     |   17 |                 LUT |
+| LUT5     |   18 |                 LUT |
 | FDCE     |   12 |        Flop & Latch |
 | LUT6     |    9 |                 LUT |
 | LUT3     |    6 |                 LUT |

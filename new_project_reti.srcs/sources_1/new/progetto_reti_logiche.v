@@ -24,14 +24,14 @@ architecture project_reti_logiche_arch of project_reti_logiche is
 
 	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH);
 	SIGNAL S : STATE;
-	SIGNAL I : std_logic_vector(9 downto 0);
-	SIGNAL K : std_logic_vector(9 downto 0);
+	SIGNAL I : std_logic_vector(9 downto 0) := (others => '0');
+	SIGNAL K : std_logic_vector(9 downto 0) := (others => '0');
 	
-	SIGNAL cnt : std_logic_vector(7 downto 0);
-	SIGNAL lastNum : std_logic_vector(7 downto 0);
+	SIGNAL cnt : std_logic_vector(7 downto 0) := (others => '0');
+	SIGNAL lastNum : std_logic_vector(7 downto 0) := (others => '0');
 	
-	SIGNAL stored_value : std_logic_vector(15 downto 0);
-	SIGNAL sentinel: std_logic;
+	SIGNAL stored_value : std_logic_vector(15 downto 0) := (others => '0');
+	SIGNAL sentinel: std_logic := '1';
 
 
 	
@@ -45,6 +45,7 @@ begin
 	begin
 		if (i_rst = '1') then 
 			S <= RESET;
+			
 		elsif falling_edge(i_clk) then
 			case S is
 				when RESET =>
@@ -83,32 +84,49 @@ begin
 				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
 			when INIT =>
+			    o_done <= '0';
 				o_mem_en <= '1'; -- ridondante
 				o_mem_we <= '0'; -- ridondante
 				K <= i_k;
 				sentinel <= '1';
 			when PREFREAD =>
+			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
+				--sentinel <= '1';
 			when FREAD => 
+			    o_done <= '0';
 				o_mem_en <= '1';
 				sentinel <= '0';
 			when PRESWRITE => 
+			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '1';
+				--sentinel <= '0';
 				o_mem_data <= cnt;
 			when SWRITE => 
+			    o_done <= '0';
 				o_mem_en <= '0';
+				--sentinel <= '0';
 			when FINISH =>
 				o_done <= '1';
 				o_mem_en <= '0'; -- ridondante
+				o_mem_we <= '0';
+				--sentinel <= '0';
+				if i_start = '0' then o_done <= '0'; end if;
 			when PREFWRITE => 
+			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '1';
 				o_mem_data <= lastNum;
+				--sentinel <= '0';
 			when FWRITE =>
-				o_mem_en <= '0';			
-			when others => null;
+			    o_done <= '0';
+				o_mem_en <= '0';
+				--sentinel <= '0';
+			when others => 
+			    o_done <= '0';
+			    sentinel <= '0';
 		end case;
 	end process get_output;
 	
