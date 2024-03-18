@@ -22,7 +22,7 @@ end project_reti_logiche;
 
 architecture project_reti_logiche_arch of project_reti_logiche is
 
-	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH);
+	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH, BEGINNING);
 	SIGNAL S : STATE;
 	SIGNAL I : std_logic_vector(9 downto 0) := (others => '0');
 	
@@ -31,7 +31,7 @@ architecture project_reti_logiche_arch of project_reti_logiche is
 	SIGNAL lastNum : std_logic_vector(7 downto 0) := (others => '0');
 	
 	SIGNAL stored_value : std_logic_vector(15 downto 0) := (others => '0');
-	SIGNAL sentinel: std_logic := '1';
+	
 
 
 	
@@ -52,7 +52,8 @@ begin
 					if (i_start = '1') then
 						S <= INIT;
 					end if;
-				when INIT => S <= PREFREAD;
+				when INIT => S <= BEGINNING;
+				when BEGINNING => S <= FREAD;
 				when PREFREAD => S <= FREAD;				
 				when FREAD => 
 				if i_mem_data /= "00000000" then
@@ -87,37 +88,42 @@ begin
 			    o_done <= '0';
 				o_mem_en <= '1'; -- ridondante
 				o_mem_we <= '0'; -- ridondante
-				sentinel <= '1';
+				
+				o_mem_data <= (others => '0');
+			when BEGINNING => 
+			    o_done <= '0';
+				o_mem_we <= '0';
+				o_mem_en <= '1';
 				o_mem_data <= (others => '0');
 			when PREFREAD =>
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
-				--sentinel <= '1'; -- questa non può ne essere 1 ne 0
+				
 				o_mem_data <= (others => '0');
 			when FREAD => 
 			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '0';
-				sentinel <= '0';
+				
 				o_mem_data <= (others => '0');
 			when PRESWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '1';
-				sentinel <= '0';
+				
 				o_mem_data <= cnt;
 			when SWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '0';
 				o_mem_we <= '1';
-				--sentinel <= '0';
+				
 				o_mem_data <= (others => '0');
 			when FINISH =>
 				o_done <= '1';
 				o_mem_en <= '0'; -- ridondante
 				o_mem_we <= '0';
-				--sentinel <= '0';
+				
 				o_mem_data <= (others => '0');
 				if i_start = '0' then o_done <= '0'; end if;
 			when PREFWRITE => 
@@ -125,16 +131,16 @@ begin
 				o_mem_en <= '1';
 				o_mem_we <= '1';
 				o_mem_data <= lastNum;
-				--sentinel <= '0';
+				
 			when FWRITE =>
 			    o_done <= '0';
 				o_mem_en <= '0';
 				o_mem_we <= '1';
-				--sentinel <= '0';
+				
 				o_mem_data <= (others => '0');
 			when others => 
 			    o_done <= '0';
-			    sentinel <= '0';
+			    
 			    o_mem_en <= '0';
 			    o_mem_we <= '0';
 			    o_mem_data <= (others => '0');
@@ -173,10 +179,8 @@ begin
 					stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(i_add)), i_add'length));
 				
 				when PREFREAD =>
-				    if sentinel = '0' then
-					   stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
-					else null;
-				    end if;
+					 stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
+					
 				    
 				when FWRITE =>
 					stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
