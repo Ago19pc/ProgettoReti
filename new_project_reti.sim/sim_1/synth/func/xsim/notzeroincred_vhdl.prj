@@ -1,6 +1,6 @@
 # compile vhdl design source files
 vhdl xil_defaultlib  \
-"C:/Users/ago19/OneDrive - Politecnico di Milano/PROGETTO RETI/project_tb_2324.vhd" \
+"../../../../../new_project_reti.srcs/sim_1/new/notzeroincred.vhd" \
 
 # Do not sort compile order
 nosort

@@ -1,7 +1,7 @@
 Vivado Simulator v2023.2
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: E:/Vivado/Vivado/2023.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L secureip --snapshot project_tb_func_synth xil_defaultlib.project_tb xil_defaultlib.glbl -log elaborate.log 
+Running: E:/Vivado/Vivado/2023.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L secureip --snapshot notzeroincred_func_synth xil_defaultlib.notzeroincred xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
@@ -15,21 +15,22 @@ Compiling package ieee.std_logic_1164
 Compiling package ieee.numeric_std
 Compiling package vl.vl_types
 Compiling module xil_defaultlib.glbl
-Compiling module unisims_ver.LUT5
+Compiling module unisims_ver.x_lut3_mux8
+Compiling module unisims_ver.LUT3
 Compiling module unisims_ver.x_lut2_mux4
 Compiling module unisims_ver.LUT2
-Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.LUT5
 Compiling module unisims_ver.LUT4
-Compiling module unisims_ver.FDCE(IS_C_INVERTED=1'b1)
+Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.FDPE_default
+Compiling module unisims_ver.FDCE_default
 Compiling module unisims_ver.CARRY4
 Compiling module unisims_ver.x_lut1_mux2
 Compiling module unisims_ver.LUT1(INIT=2'b01)
-Compiling module unisims_ver.x_lut3_mux8
-Compiling module unisims_ver.LUT3
-Compiling module unisims_ver.FDRE(IS_C_INVERTED=1'b1)
+Compiling module unisims_ver.FDRE_default
 Compiling module unisims_ver.IBUF
 Compiling module unisims_ver.BUFG
 Compiling module unisims_ver.OBUF
 Compiling module xil_defaultlib.project_reti_logiche
-Compiling architecture project_tb_arch of entity xil_defaultlib.project_tb
-Built simulation snapshot project_tb_func_synth
+Compiling architecture project_tb_arch of entity xil_defaultlib.notzeroincred
+Built simulation snapshot notzeroincred_func_synth

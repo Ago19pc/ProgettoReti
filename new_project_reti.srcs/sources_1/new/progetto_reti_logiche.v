@@ -88,7 +88,6 @@ begin
 			    o_done <= '0';
 				o_mem_en <= '1'; -- ridondante
 				o_mem_we <= '0'; -- ridondante
-				
 				o_mem_data <= (others => '0');
 			when PREFREAD => 
 			    o_done <= '0';
@@ -99,31 +98,26 @@ begin
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
-				
 				o_mem_data <= (others => '0');
 			when FREAD => 
 			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '0';
-				
-				o_mem_data <= (others => '0');
+				o_mem_data <=(others => '0');
 			when PRESWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '1';
 				o_mem_we <= '1';
-				
 				o_mem_data <= cnt;
 			when SWRITE => 
 			    o_done <= '0';
-				o_mem_en <= '0';
-				o_mem_we <= '1';
-				
+				o_mem_en <= '1';
+				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
 			when FINISH =>
 				o_done <= '1';
 				o_mem_en <= '0'; -- ridondante
 				o_mem_we <= '0';
-				
 				o_mem_data <= (others => '0');
 				if i_start = '0' then o_done <= '0'; end if;
 			when PREFWRITE => 
@@ -131,12 +125,10 @@ begin
 				o_mem_en <= '1';
 				o_mem_we <= '1';
 				o_mem_data <= lastNum;
-				
 			when FWRITE =>
 			    o_done <= '0';
 				o_mem_en <= '0';
 				o_mem_we <= '1';
-				
 				o_mem_data <= (others => '0');
 			when others => 
 			    o_done <= '0';
@@ -202,7 +194,6 @@ begin
 			case S is 
 				when INIT =>
 					lastNum <= (others => '0');
-					
 				when FREAD => 
 					if i_mem_data /= "00000000" then 
 						lastnum <= i_mem_data;
