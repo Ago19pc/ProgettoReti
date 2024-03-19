@@ -1,4 +1,4 @@
 Time resolution is 1 ps
 Failure: Simulation Ended! TEST PASSATO (EXAMPLE)
-Time: 2135100 ps  Iteration: 1  Process: /project_tb/test_routine  File: C:/Users/ago19/OneDrive - Politecnico di Milano/PROGETTO RETI/project_tb_2324.vhd
-$finish called at time : 2135100 ps : File "C:/Users/ago19/OneDrive - Politecnico di Milano/PROGETTO RETI/project_tb_2324.vhd" Line 187
+Time: 2135 ns  Iteration: 2  Process: /project_tb/test_routine  File: C:/Users/ago19/OneDrive - Politecnico di Milano/PROGETTO RETI/project_tb_2324.vhd
+$finish called at time : 2135 ns : File "C:/Users/ago19/OneDrive - Politecnico di Milano/PROGETTO RETI/project_tb_2324.vhd" Line 187

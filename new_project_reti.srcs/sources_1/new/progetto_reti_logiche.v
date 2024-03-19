@@ -22,7 +22,7 @@ end project_reti_logiche;
 
 architecture project_reti_logiche_arch of project_reti_logiche is
 
-	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH, BEGINNING);
+	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH, CHILLING);
 	SIGNAL S : STATE;
 	SIGNAL I : std_logic_vector(9 downto 0) := (others => '0');
 	
@@ -46,15 +46,15 @@ begin
 		if (i_rst = '1') then 
 			S <= RESET;
 			
-		elsif falling_edge(i_clk) then
+		elsif rising_edge(i_clk) then
 			case S is
 				when RESET =>
 					if (i_start = '1') then
 						S <= INIT;
 					end if;
-				when INIT => S <= BEGINNING;
-				when BEGINNING => S <= FREAD;
-				when PREFREAD => S <= FREAD;				
+				when INIT => S <= PREFREAD;
+				when PREFREAD => S <= CHILLING;
+				when CHILLING => S <= FREAD;				
 				when FREAD => 
 				if i_mem_data /= "00000000" then
 					S <= PRESWRITE;
@@ -90,12 +90,12 @@ begin
 				o_mem_we <= '0'; -- ridondante
 				
 				o_mem_data <= (others => '0');
-			when BEGINNING => 
+			when PREFREAD => 
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
 				o_mem_data <= (others => '0');
-			when PREFREAD =>
+			when CHILLING =>
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
@@ -140,7 +140,6 @@ begin
 				o_mem_data <= (others => '0');
 			when others => 
 			    o_done <= '0';
-			    
 			    o_mem_en <= '0';
 			    o_mem_we <= '0';
 			    o_mem_data <= (others => '0');
@@ -152,7 +151,7 @@ begin
 	   begin
 		if (i_rst = '1') then
 			cnt <= (others => '0'); -- ridondante
-		elsif falling_edge(i_clk) then
+		elsif rising_edge(i_clk) then
 			case S is
 				when INIT => cnt <= (others => '0');
 				when FREAD => 
@@ -173,12 +172,12 @@ begin
 	o_mem_addr <= stored_value;
 	shift_address: process(i_clk, i_rst)
 	   begin
-		if falling_edge(i_clk) then
+		if rising_edge(i_clk) then
 			case S is 
 				when INIT =>
 					stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(i_add)), i_add'length));
 				
-				when PREFREAD =>
+				when SWRITE =>
 					 stored_value <= std_logic_vector(to_unsigned(to_integer(unsigned(stored_value)) + 1, stored_value'length));
 					
 				    
@@ -199,7 +198,7 @@ begin
 	
 	override : process(i_clk , i_rst)
 	   begin
-		if falling_edge(i_clk) then 
+		if rising_edge(i_clk) then 
 			case S is 
 				when INIT =>
 					lastNum <= (others => '0');
@@ -217,7 +216,7 @@ begin
 	
 	I_Increment: process(i_clk , i_rst)
 	   begin
-		if falling_edge(i_clk) then
+		if rising_edge(i_clk) then
 			case S is
 				when INIT =>
 					I <= (others => '0');
