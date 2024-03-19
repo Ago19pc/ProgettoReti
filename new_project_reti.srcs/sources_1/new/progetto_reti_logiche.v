@@ -22,7 +22,7 @@ end project_reti_logiche;
 
 architecture project_reti_logiche_arch of project_reti_logiche is
 
-	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH, CHILLING);
+	TYPE STATE IS (RESET, INIT, PREFREAD, FREAD, PREFWRITE, FWRITE, PRESWRITE, SWRITE, FINISH);
 	SIGNAL S : STATE;
 	SIGNAL I : std_logic_vector(9 downto 0) := (others => '0');
 	
@@ -53,8 +53,7 @@ begin
 						S <= INIT;
 					end if;
 				when INIT => S <= PREFREAD;
-				when PREFREAD => S <= CHILLING;
-				when CHILLING => S <= FREAD;				
+				when PREFREAD => S <= FREAD;			
 				when FREAD => 
 				if i_mem_data /= "00000000" then
 					S <= PRESWRITE;
@@ -86,15 +85,10 @@ begin
 				o_mem_data <= (others => '0');
 			when INIT =>
 			    o_done <= '0';
-				o_mem_en <= '1'; -- ridondante
-				o_mem_we <= '0'; -- ridondante
+				o_mem_en <= '1';
+				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
 			when PREFREAD => 
-			    o_done <= '0';
-				o_mem_we <= '0';
-				o_mem_en <= '1';
-				o_mem_data <= (others => '0');
-			when CHILLING =>
 			    o_done <= '0';
 				o_mem_we <= '0';
 				o_mem_en <= '1';
@@ -116,7 +110,7 @@ begin
 				o_mem_data <= (others => '0');
 			when FINISH =>
 				o_done <= '1';
-				o_mem_en <= '0'; -- ridondante
+				o_mem_en <= '0';
 				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
 				if i_start = '0' then o_done <= '0'; end if;
@@ -142,7 +136,7 @@ begin
 	counter : process (i_clk, i_rst)
 	   begin
 		if (i_rst = '1') then
-			cnt <= (others => '0'); -- ridondante
+			cnt <= (others => '0');
 		elsif rising_edge(i_clk) then
 			case S is
 				when INIT => cnt <= (others => '0');
