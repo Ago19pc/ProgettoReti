@@ -77,6 +77,7 @@ begin
 	
 	get_output : process (i_clk , i_rst)
 	begin
+	   if rising_edge (i_clk) then
 		case S is
 			when RESET => 
 				o_mem_en <= '0';
@@ -109,11 +110,12 @@ begin
 				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
 			when FINISH =>
-				o_done <= '1';
 				o_mem_en <= '0';
 				o_mem_we <= '0';
 				o_mem_data <= (others => '0');
-				if i_start = '0' then o_done <= '0'; end if;
+				if i_start = '0' then o_done <= '0'; 
+				else o_done <= '1';
+				end if;
 			when PREFWRITE => 
 			    o_done <= '0';
 				o_mem_en <= '1';
@@ -130,6 +132,7 @@ begin
 			    o_mem_we <= '0';
 			    o_mem_data <= (others => '0');
 		end case;
+		end if;
 	end process get_output;
 	
 	-------------------------------------------------------------------------------------------
